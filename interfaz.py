@@ -22,7 +22,7 @@ class Analizador:
         # asi si cambian el alfabeto no hay problema.
         self.condiciones = []
 
-        # ---------- alfabeto ----------
+        # alfabeto 
         marco_alfabeto = ttk.LabelFrame(ventana, text="1. Alfabeto")
         marco_alfabeto.pack(fill="x", padx=10, pady=5)
         ttk.Label(marco_alfabeto, text="Símbolos separados por comas:").pack(side="left", padx=5, pady=5)
@@ -30,7 +30,7 @@ class Analizador:
         self.entrada_alfabeto.insert(0, "0,1")
         self.entrada_alfabeto.pack(side="left", padx=5)
 
-        # ---------- condiciones ----------
+        # condiciones
         marco_cond = ttk.LabelFrame(ventana, text="2. Condiciones")
         marco_cond.pack(fill="x", padx=10, pady=5)
 
@@ -66,7 +66,7 @@ class Analizador:
         self.lista = tk.Listbox(marco_cond, height=6)
         self.lista.pack(fill="x", padx=5, pady=5)
 
-        # ---------- probar cadena ----------
+        # probar cadena
         marco_prueba = ttk.LabelFrame(ventana, text="3. Probar cadena")
         marco_prueba.pack(fill="both", expand=True, padx=10, pady=5)
 
@@ -86,7 +86,7 @@ class Analizador:
 
         self.cambio_tipo()
 
-    # ---------- funciones de los botones ----------
+    # funciones de los botones
 
     def leer_alfabeto(self):
         # convierte "0,1" en ["0", "1"] y revisa que este bien

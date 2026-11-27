@@ -22,9 +22,7 @@ def crear_afd(nombre, estados, delta, aceptacion, trampa=None):
     }
 
 
-# ---------------------------------------------------------------
 # funcion de apoyo para "contiene x" y "termina en x"
-# ---------------------------------------------------------------
 
 def siguiente_estado(x, i, c):
     # estoy en el estado i, o sea ya coinciden los primeros i simbolos de x.
@@ -41,9 +39,7 @@ def siguiente_estado(x, i, c):
     return 0
 
 
-# ---------------------------------------------------------------
 # plantillas, una funcion por cada tipo de condicion
-# ---------------------------------------------------------------
 
 def empieza_con(sigma, x):
     # estados 0..m y un estado trampa m+1
@@ -129,10 +125,8 @@ def negar(afd):
     return nuevo
 
 
-# ---------------------------------------------------------------
 # lista de tipos de condicion para la interfaz
 # "pide" dice que datos necesita: "x" (una cadena) o "s" y "n" (simbolo y numero)
-# ---------------------------------------------------------------
 
 TIPOS = [
     "Empieza con",
@@ -190,9 +184,7 @@ def construir(sigma, tipo, texto, numero, negada):
     return afd
 
 
-# ---------------------------------------------------------------
 # correr los afd en paralelo
-# ---------------------------------------------------------------
 
 def correr(afds, cadena):
     # todos los afd leen el mismo simbolo al mismo tiempo, cada uno avanza por su lado.
@@ -210,9 +202,7 @@ def correr(afds, cadena):
     return acepta, recorridos, cumple
 
 
-# ---------------------------------------------------------------
 # cosas para mostrar
-# ---------------------------------------------------------------
 
 def nombre_estado(afd, q):
     # pone q0, q1, ... y marca la trampa
