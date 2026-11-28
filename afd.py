@@ -2,12 +2,59 @@
 # aqui esta toda la parte de autómatas del proyecto.
 # cada condicion que elige el usuario se convierte en un afd (autómata finito determinista).
 # un afd lo guardamos como un diccionario con:
-#   nombre      -> texto para mostrar, por ejemplo "contiene 101"
-#   estados     -> lista de estados, son numeros 0, 1, 2, ...
-#   inicio      -> el estado inicial, siempre es 0
-#   delta       -> la tabla de transiciones, (estado, simbolo) -> estado siguiente
-#   aceptacion  -> conjunto de estados donde la cadena se acepta
-#   trampa      -> el estado trampa si tiene uno, si no es None
+#nombre -> texto para mostrar, por ejemplo "contiene 101"
+#estados -> lista de estados, son numeros 0, 1, 2, ...
+#inicio -> el estado inicial, siempre es 0
+#delta -> la tabla de transiciones, (estado, simbolo) -> estado siguiente
+#aceptacion -> conjunto de estados donde la cadena se acepta
+#trampa -> el estado trampa si tiene uno, si no es None
+
+#operaciones entre dos afd (construccion de producto)
+
+OPERACIONES = ["Unión", "Intersección", "Diferencia"]
+
+
+def producto(a, b, sigma, operacion):
+    # arma un solo afd que corre a y b al mismo tiempo.
+    # cada estado nuevo es una pareja (estado de a, estado de b).
+    # solo se crean las parejas a las que se puede llegar desde el inicio.
+    inicio = (a["inicio"], b["inicio"])
+    numero = {inicio: 0}        # pareja -> numero del estado nuevo
+    pendientes = [inicio]       # parejas que faltan por revisar
+    delta = {}
+    while pendientes:
+        p, q = pendientes.pop(0)
+        actual = numero[(p, q)]
+        for c in sigma:
+            # cada afd avanza por su lado con el mismo simbolo
+            siguiente = (a["delta"][(p, c)], b["delta"][(q, c)])
+            if siguiente not in numero:
+                numero[siguiente] = len(numero)
+                pendientes.append(siguiente)
+            delta[(actual, c)] = numero[siguiente]
+
+    # lo unico que cambia entre operaciones es que parejas aceptan
+    aceptacion = set()
+    for (p, q), n in numero.items():
+        en_a = p in a["aceptacion"]
+        en_b = q in b["aceptacion"]
+        if operacion == "Unión":
+            acepta = en_a or en_b
+        elif operacion == "Intersección":
+            acepta = en_a and en_b
+        else:  # diferencia, cumple a pero no b
+            acepta = en_a and not en_b
+        if acepta:
+            aceptacion.add(n)
+
+    simbolo = {"Unión": "∪", "Intersección": "∩", "Diferencia": "−"}[operacion]
+    nombre = "(" + a["nombre"] + ") " + simbolo + " (" + b["nombre"] + ")"
+    resultado = crear_afd(nombre, range(len(numero)), delta, aceptacion)
+    # guardo el nombre de cada estado como pareja para mostrarlo, por ejemplo (q1,q2)
+    resultado["nombres"] = {}
+    for (p, q), n in numero.items():
+        resultado["nombres"][n] = "(" + nombre_estado(a, p) + "," + nombre_estado(b, q) + ")"
+    return resultado
 
 
 def crear_afd(nombre, estados, delta, aceptacion, trampa=None):
@@ -205,18 +252,23 @@ def correr(afds, cadena):
 # cosas para mostrar
 
 def nombre_estado(afd, q):
-    # pone q0, q1, ... y marca la trampa
+    # pone q0, q1, ... y marca la trampa.
+    # si el afd viene de una operacion, usa el nombre de la pareja.
+    if "nombres" in afd:
+        return afd["nombres"][q]
     if q == afd["trampa"]:
         return "trampa"
     return "q" + str(q)
 
-
 def tabla_texto(afd, sigma):
     # arma la tabla de transiciones como texto
     # -> marca el estado inicial y * los de aceptacion
-    ancho = 10
+    # el ancho de las columnas depende del nombre de estado mas largo
+    ancho = max(len(nombre_estado(afd, q)) for q in afd["estados"]) + 3
+    ancho = max(ancho, 9)
     lineas = []
     lineas.append(afd["nombre"])
+    lineas.append(str(len(afd["estados"])) + " estados")
     lineas.append("")
     encabezado = "estado".ljust(ancho + 4) + "".join(("lee " + c).ljust(ancho) for c in sigma)
     lineas.append(encabezado)

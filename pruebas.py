@@ -1,8 +1,5 @@
-# pruebas.py
 # casos de prueba del analizador, se corren en la terminal sin abrir la ventana.
 # sirven para la seccion de pruebas del reporte.
-#
-# para correrlo:  python3 pruebas.py
 
 import afd as automatas
 
@@ -41,6 +38,26 @@ CASOS = [
 ]
 
 
+# casos de las operaciones entre dos condiciones
+# cada caso es: (condicion a, operacion, condicion b, cadena, resultado esperado)
+A = ("Empieza con", "1", "", False)
+B = ("Contiene", "101", "", False)
+CASOS_OPERACION = [
+    (A, "Unión", B, "1100", True),
+    (A, "Intersección", B, "1100", False),
+    (A, "Diferencia", B, "1100", True),
+    (A, "Unión", B, "1010", True),
+    (A, "Intersección", B, "1010", True),
+    (A, "Diferencia", B, "1010", False),
+    (A, "Unión", B, "0101", True),
+    (A, "Intersección", B, "0101", False),
+    (A, "Diferencia", B, "0101", False),
+    (A, "Unión", B, "0000", False),
+    (A, "Intersección", B, "0000", False),
+    (A, "Diferencia", B, "0000", False),
+]
+
+
 def main():
     bien = 0
     print("cadena".ljust(10), "condiciones".ljust(55), "esperado".ljust(11), "obtenido".ljust(11), "ok")
@@ -58,6 +75,26 @@ def main():
               "sí" if ok else "NO")
     print()
     print(bien, "de", len(CASOS), "casos correctos")
+
+    # ahora las operaciones entre dos condiciones
+    print()
+    print("cadena".ljust(10), "operacion".ljust(55), "esperado".ljust(11), "obtenido".ljust(11), "ok")
+    print("-" * 95)
+    bien_op = 0
+    for cond_a, operacion, cond_b, cadena, esperado in CASOS_OPERACION:
+        a = automatas.construir(SIGMA, *cond_a)
+        b = automatas.construir(SIGMA, *cond_b)
+        resultado = automatas.producto(a, b, SIGMA, operacion)
+        obtenido = automatas.correr([resultado], cadena)[0]
+        ok = obtenido == esperado
+        if ok:
+            bien_op += 1
+        print(cadena.ljust(10), resultado["nombre"].ljust(55),
+              ("ACEPTADA" if esperado else "RECHAZADA").ljust(11),
+              ("ACEPTADA" if obtenido else "RECHAZADA").ljust(11),
+              "sí" if ok else "NO")
+    print()
+    print(bien_op, "de", len(CASOS_OPERACION), "casos de operaciones correctos")
 
     # tambien imprimo la tabla de "contiene 01" para compararla con la figura 4 del reporte
     print()
